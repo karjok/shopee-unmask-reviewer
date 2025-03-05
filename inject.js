@@ -21,9 +21,14 @@ window.addEventListener("message", (event) => {
 
 
 function show_user(shopid){
-    fetch(`https://shopee.co.id/api/v4/shop/get_shop_base?entry_point=&need_cancel_rate=true&request_source=shop_home_page&shopid=${shopid}&version=2`)
+    const currentDomain = window.location.hostname;
+    fetch(`https://${currentDomain}/api/v4/shop/get_shop_base?entry_point=&need_cancel_rate=true&request_source=shop_home_page&shopid=${shopid}&version=2`)
     .then(response => response.json())
     .then(data => {
+        if (!data || !data.data){
+            return {data: {}};
+
+        }
         const existingPopup = document.getElementById("shopeePopup");
         const existingOverlay = document.getElementById("shopeeOverlay");
         if (existingPopup) existingPopup.remove();
@@ -62,6 +67,14 @@ function show_user(shopid){
         const lastActiveDate = new Date(data.data.last_active_time * 1000).toLocaleString();
         const JoinDate = new Date(data.data.ctime * 1000).toLocaleString();
 
+        let imageDomain = "down-cvs-id.img.susercontent.com"; // for indonesian shopee, i called it 'default' media domain :)
+        const portraitUrl = data.data.account.portrait;
+        const profileImageUrl = `https://${imageDomain}/${portraitUrl}_tn.webp`;
+        const match = portraitUrl.match(/https?:\/\/([^\/]+)/);
+        if (match) {
+            imageDomain = match[1]; 
+        }
+
         popup.innerHTML = `
             <style>
                 ::-webkit-scrollbar {
@@ -70,11 +83,11 @@ function show_user(shopid){
                 }
             </style>
             <!-- <h2 style="color: #FF6532; text-align: center; font-weight: bolder;">User Info</h2> -->
-            <a href="https://down-cvs-id.img.susercontent.com/${data.data.account.portrait}_tn.webp" target="_blank"><img src="https://down-cvs-id.img.susercontent.com/${data.data.account.portrait}_tn.webp" style="width: 200px; height: auto; border-radius: 50%; margin-bottom: 10px;"></a>
+            <a href="${profileImageUrl}" target="_blank"><img src="${profileImageUrl}" style="width: 200px; height: auto; border-radius: 50%; margin-bottom: 10px;"></a>
             <h2>${data.data.name}</h2>
             <p style="color: #0d0d0d; font-size: 12px;">Last Active: ${lastActiveDate}</p>
             <p style="color: #0d0d0d;">${data.data.description}</p>
-            <button onclick="window.open('https://shopee.co.id/shop/${data.data.shopid}', '_blank')" style="display: block; margin: 10px auto; padding: 10px 15px; border: none; background: #FF6532; color:#ffffff; cursor: pointer; border-radius: 5px; font-weight: bolder;">View Profile</button>
+            <button onclick="window.open('https://${currentDomain}/shop/${data.data.shopid}', '_blank')" style="display: block; margin: 10px auto; padding: 10px 15px; border: none; background: #FF6532; color:#ffffff; cursor: pointer; border-radius: 5px; font-weight: bolder;">View Profile</button>
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px; color: #0d0d0d; text-align: left;">
                 ${[
                     ['Shop ID', data.data.shopid],

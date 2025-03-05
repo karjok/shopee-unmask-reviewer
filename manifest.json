@@ -5,20 +5,44 @@
   "description": "A simple extension to unmask the Shopee masked reviewer name",
   "manifest_version": 3,
   "permissions": ["storage", "activeTab", "scripting","webRequest"],
-  "host_permissions": ["https://shopee.co.id/*"],
+  "host_permissions": [
+    "*://shopee.co.id/*",
+    "*://shopee.tw/*",
+    "*://shopee.cn/*",
+    "*://shopee.com.my/*",
+    "*://shopee.ph/*",
+    "*://shopee.com.br/*",
+    "*://shopee.co.th/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["https://shopee.co.id/*"],
+      "matches": [
+        "*://shopee.co.id/*",
+        "*://shopee.tw/*",
+        "*://shopee.cn/*",
+        "*://shopee.com.my/*",
+        "*://shopee.ph/*",
+        "*://shopee.com.br/*",
+        "*://shopee.co.th/*"
+      ],
       "js": ["content.js"]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": ["inject.js"],
-      "matches": ["https://shopee.co.id/*"]
+      "matches": [
+        "*://shopee.co.id/*",
+        "*://shopee.tw/*",
+        "*://shopee.cn/*",
+        "*://shopee.com.my/*",
+        "*://shopee.ph/*",
+        "*://shopee.com.br/*",
+        "*://shopee.co.th/*"
+      ]
     }
   ],
   "action": {
