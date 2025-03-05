@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shopee Unmask Reviewer</title>
+  <style>
+    body { font-family: Arial, sans-serif; width: 400px; padding: 10px;}
+    .banner { display: flex; flex-flow: row; align-items: center; justify-content: space-around; border-bottom: 2px solid #FF6532; padding: 10px 0px; margin-bottom: 10px;}
+    .banner div { display: flex; justify-content: center; flex-flow: column; padding: 0px 10px; margin-left: 10px;}
+    .banner img { width: 70px; height: 70px;}
+    .banner h2 { color: #FF6532; padding: 0px;}
+    .banner p { color: #52403a; padding: 0px;}
+    .banner span { color: #775f57; padding: 0px; word-wrap: break-word;}
+    .content { padding: 10px; margin: 10px;}
+    .show-profile-btn { color: #df420d; border-radius: 5px; font-size: 15px; background-color: #ffc1ac; margin: 5px; padding: 10px; border: none; cursor: pointer;}
+    .show-profile-btn:hover { background-color: #df420d; color: white;}
+    .footer { position: relative;}
+    .footer span { color: #797979; font-size: 10px; position: absolute; right: 0px;}
+    .footer a { text-decoration: none; cursor: pointer; color: #df420d;}
+  </style>
+</head>
+<body>
+    <div class="banner">
+        <img src="icons/icon-128.png">
+        <div>
+            <h2>Shopee Unmask Reviewer</h2>
+            <span>A simple extension to unmask the Shopee masked reviewer name</span>
+        </div>
+    </div>
+    <div id="ratings-container" class="content">Loading...</div>
+    <div class="footer">
+        <span>&copy; 2025 - V1.0 by <a href="https://github.com/karjok">Karjok Pangesty</a></span>
+    </div>
+  <script src="popup.js"></script>
+</body>
+</html>
