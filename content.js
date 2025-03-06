@@ -1,5 +1,4 @@
 var initFetch = true
-
 function injectScript() {
     const script = document.createElement("script");
     script.src = chrome.runtime.getURL("inject.js");
@@ -16,7 +15,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             initFetch = false;
         }
     if (message.action === "showUser") {
-        window.postMessage({ action: "showUser", shopid: message.shopid }, "*");
+         window.postMessage({ action: "showUserPlease", shopid: message.shopid }, "*");
     }
 });
 
