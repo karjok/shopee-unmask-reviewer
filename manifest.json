@@ -1,6 +1,6 @@
 {
   "name": "Shopee Unmask Reviewer",
-  "version": "1.0",
+  "version": "2.3",
   "author": "Karjok Pangesty",
   "description": "A simple extension to unmask the Shopee masked reviewer name",
   "manifest_version": 3,

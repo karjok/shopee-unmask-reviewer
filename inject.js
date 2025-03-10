@@ -17,19 +17,21 @@ window.addEventListener("message", (event) => {
     if (event.source !== window || !event.data.action) return;
     if (event.data.action === "showUserPlease"){
         const existingOverlay = document.getElementById("shopeeOverlay");
-        if (existingOverlay){
-            existingOverlay.remove();
-        }
+        const existingPopup = document.getElementById("shopeePopup");
+        
         if (localStorage.getItem('lastShopidSearch') != event.data.shopid) {
+            if (existingOverlay){
+                existingOverlay.remove();
+            }
+            if (existingPopup){
+                existingPopup.remove();
+            }
             if (event.data.shopid){
-                console.log('show user Please');
                 localStorage.setItem('lastShopidSearch', event.data.shopid);
                 show_user(event.data.shopid);
             }else{
                 console.error(`Invalid shopid: ${event.data.shopid}`);
             }
-        }else{
-            localStorage.setItem('lastShopidSearch','');
         }
     }
 });
@@ -43,7 +45,7 @@ function formatDate(timestamp) {
         minute: "2-digit",
         second: "2-digit",
         hour12: true, // Keeps AM/PM
-    });
+    }).toUpperCase();
 }
 
 function show_user(shopid){
@@ -52,6 +54,8 @@ function show_user(shopid){
     .then(response => response.json())
     .then(data => {
         if (!data || !data.data){
+            console.log(`Invalid response for shopid ${shopid}: `, JSON.stringify(data));
+            localStorage.setItem('lastShopidSearch', shopid);
             return {data: {}};
 
         }
@@ -67,11 +71,8 @@ function show_user(shopid){
         overlay.style.height = '100%';
         overlay.style.background = 'rgba(0, 0, 0, 0.8)';
         overlay.style.zIndex = '999';
-        overlay.addEventListener('click', () => {
-            overlay.remove();
-            localStorage.setItem('lastShopidSearch', '');
-        });
-    
+        
+        
         const popup = document.createElement('div');
         popup.id = "shopeePopup";
         popup.style.position = 'fixed';
@@ -90,6 +91,8 @@ function show_user(shopid){
         popup.style.textAlign = 'center';
         popup.style.scrollbarWidth = 'none';
         popup.style.msOverflowStyle = 'none';
+        popup.style.zIndex = '9999';
+        
 
         const lastActiveDate = formatDate(data.data.last_active_time);
         const JoinDate = formatDate(data.data.ctime);
@@ -103,18 +106,54 @@ function show_user(shopid){
         }
 
         popup.innerHTML = `
-            <style>
-            ::-webkit-scrollbar {
-                width: 0;
-                height: 0;
-                }
+                <style>
+                    ::-webkit-scrollbar {
+                        width: 0;
+                        height: 0;
+                    }
+                    ::selection {
+                        color: #ffffff;
+                        background: #ff8b64;
+                        }
+                    .profile-img {
+                        width: 130px;
+                        height: auto;
+                        border-radius: 20px;
+                        transition: transform 0.2s ease-in-out;
+                        transform-origin: top left;
+                    }
+                    .profile-img:hover {
+                        border-radius: 5px;
+                        transform: scale(3) translateX(1%) translateY(1%);
+                        box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+                    }
+
                 </style>
-                <!-- <h2 style="color: #FF6532; text-align: center; font-weight: bolder;">User Info</h2> -->
-                <a href="${profileImageUrl}" target="_blank"><img src="${profileImageUrl}" style="width: 200px; height: auto; border-radius: 50%; margin-bottom: 10px;"></a>
-                <h2>${data.data.name}</h2>
-                <p style="color: #0d0d0d; font-size: 12px;">Last Active: ${lastActiveDate}</p>
-                <p style="color: #0d0d0d;">${data.data.description}</p>
-                <button onclick="window.open('https://${currentDomain}/shop/${data.data.shopid}', '_blank')" style="display: block; margin: 10px auto; padding: 10px 15px; border: none; background: #FF6532; color:#ffffff; cursor: pointer; border-radius: 5px; font-weight: bolder;">View Profile</button>
+                <div style="display: flex; flex-flow:row; justify-content:start; align-items: start; margin-bottom: 10px;">
+                    <a href="${profileImageUrl}" target="_blank"><img src="${profileImageUrl}" class="profile-img"></a>
+                    <div style="display: flex; flex-flow:column; align-items:start; justify-content: space-evenly; height: 130px; margin-left: 35px;">
+                        <h2 style="margin:0px;">${data.data.name}</h2>
+                        <p style="color: #0d0d0d; font-size: 12px; margin:0px;">Last Active: ${lastActiveDate}</p>
+                        <button onclick="window.open('https://${currentDomain}/shop/${data.data.shopid}', '_blank')"
+                            style="
+                                display: block; 
+                                margin: 5px 0px; 
+                                padding: 10px 15px; 
+                                border: none; 
+                                background: #f74b12; 
+                                color: #ffffff; 
+                                cursor: pointer; 
+                                border-radius: 5px; 
+                                font-weight: bolder;"
+                            onmouseover="this.style.background='#FF6532'; this.style.color='#ffffff';"
+                            onmouseout="this.style.background='#f74b12'; this.style.color='#ffffff';">
+                        View Profile
+                        </button>
+                    </div>
+                </div>
+
+                ${data.data.description ? '<p style="color: #0d0d0d; margin:0px; font-size: 12px; text-align: justify; text-justify: inter-word;"><i>' + data.data.description + '</i></p>' : ''}
+                
                 <table style="width: 100%; border-collapse: collapse; margin-top: 10px; color: #0d0d0d; text-align: left;">
                 ${[
                     ['Shop ID', data.data.shopid],
@@ -129,15 +168,21 @@ function show_user(shopid){
                     ['Email Verified', data.data.account.email_verified]
                 ].map(([label, value]) => `<tr><td style="padding: 5px; font-weight: bold;">${label}</td><td style="padding: 5px;">${value}</td></tr>`).join('')}
             </table>
-            <textarea style="width: 380px; height: 200px; margin-top: 10px; font-size: 12px; border: none; padding: 5px; background:rgb(238, 236, 236); color: rgb(114, 114, 113); resize: none; overflow: scroll; border-radius: 10px; scrollbar-width: none; msOverflowStyle: none;" readonly>${JSON.stringify(data, null, 4)}</textarea>
+            <textarea style="width: 380px; height: 200px; margin-top: 10px; font-size: 12px; border: none; padding: 10px; background:rgb(238, 236, 236); color: rgb(114, 114, 113); resize: none; overflow: scroll; border-radius: 10px; scrollbar-width: none; msOverflowStyle: none;" readonly>${JSON.stringify(data, null, 4)}</textarea>
             `;
-        overlay.appendChild(popup);
-        
-        const existingOverlay = document.getElementById("shopeeOverlay");
-        if (!existingOverlay){
-            firstFetch = true;
-            document.body.appendChild(overlay);
-        }
+            
+            const existingOverlay = document.getElementById("shopeeOverlay");
+            if (!existingOverlay){
+                firstFetch = true;
+                document.body.appendChild(overlay);
+                document.body.appendChild(popup);
+                overlay.addEventListener('click', () => {
+                    overlay.remove();
+                    popup.remove();
+                    localStorage.setItem('lastShopidSearch', '');
+                });
+            }
+            
         });
 
 }
